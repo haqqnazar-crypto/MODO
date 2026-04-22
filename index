@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Физика МОДО — 9 сынып</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a;
+    --surface: #161929;
+    --card: #1e2340;
+    --accent: #4f8ef7;
+    --accent2: #7c5ef7;
+    --success: #2dd4a0;
+    --danger: #f74f6a;
+    --warning: #f7c34f;
+    --text: #e8eaf6;
+    --muted: #7b82a8;
+    --border: rgba(255,255,255,0.07);
+    --glow: 0 0 30px rgba(79,142,247,0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  .stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 20% 20%, rgba(79,142,247,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(124,94,247,0.08) 0%, transparent 60%);
+  }
+  .stars::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 85% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 35% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 60% 85%, rgba(255,255,255,0.2) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 90% 75%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,0.3) 0%, transparent 100%),
+                      radial-gradient(1px 1px at 45% 50%, rgba(255,255,255,0.2) 0%, transparent 100%);
+  }
+
+  .container { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 20px; }
+
+  /* ---- SCREENS ---- */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---- LOGIN SCREEN ---- */
+  .login-wrap {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--glow), 0 24px 60px rgba(0,0,0,0.4);
+  }
+  .atom-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+    display: block;
+    animation: spin-slow 8s linear infinite;
+  }
+  @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .login-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px;
+  }
+  .login-sub { color: var(--muted); font-size: 13px; margin-bottom: 32px; }
+
+  .variant-label { font-size: 13px; color: var(--muted); text-align: left; margin-bottom: 8px; font-weight: 600; }
+  .variant-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .variant-btn {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .variant-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+  .variant-btn.selected { background: linear-gradient(135deg, var(--accent), var(--accent2)); border-color: transparent; color: #fff; box-shadow: var(--glow); }
+
+  .input-field {
+    width: 100%;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 18px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+  }
+  .input-field::placeholder { color: var(--muted); font-weight: 400; }
+  .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,142,247,0.15); }
+
+  .btn-primary {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(79,142,247,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(79,142,247,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ---- QUIZ SCREEN ---- */
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; padding: 16px 20px;
+    background: var(--card); border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .quiz-info { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .quiz-info span { color: var(--text); font-size: 15px; }
+  .progress-bar {
+    height: 4px; background: var(--surface); border-radius: 2px;
+    margin-bottom: 28px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+  }
+
+  .question-block { margin-bottom: 20px; }
+  .question-num {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .context-box {
+    background: rgba(79,142,247,0.07);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 14px;
+    padding: 16px 18px;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .question-text {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .options-list { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 14px 18px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s;
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(79,142,247,0.08); }
+  .option-label {
+    flex-shrink: 0;
+    width: 30px; height: 30px;
+    background: var(--surface);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    transition: all 0.18s;
+  }
+  .option-btn:hover:not(:disabled) .option-label { background: var(--accent); color: #fff; }
+  .option-btn.correct { border-color: var(--success); background: rgba(45,212,160,0.08); }
+  .option-btn.correct .option-label { background: var(--success); color: #fff; }
+  .option-btn.wrong { border-color: var(--danger); background: rgba(247,79,106,0.08); }
+  .option-btn.wrong .option-label { background: var(--danger); color: #fff; }
+  .option-btn.show-correct { border-color: var(--success); background: rgba(45,212,160,0.06); opacity: 0.7; }
+  .option-btn:disabled { cursor: default; }
+
+  .nav-btns { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-secondary {
+    flex: 1;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    color: var(--text);
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .section-divider {
+    text-align: center;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--accent2);
+    padding: 16px 0 4px;
+    opacity: 0.7;
+  }
+
+  /* ---- RESULTS SCREEN ---- */
+  .results-header { text-align: center; padding: 40px 0 32px; }
+  .results-emoji { font-size: 64px; display: block; margin-bottom: 12px; }
+  .results-name {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .results-variant { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+
+  .score-ring {
+    width: 140px; height: 140px;
+    margin: 0 auto 32px;
+    position: relative;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring-bg { stroke: var(--surface); fill: none; }
+  .score-ring-fill { stroke: url(#ringGrad); fill: none; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+  .score-ring-text {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .score-pct {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  .score-pct-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 12px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .stat-val.green { color: var(--success); }
+  .stat-val.red { color: var(--danger); }
+  .stat-val.blue { color: var(--accent); }
+  .stat-label { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .grade-badge {
+    display: inline-block;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 10px 28px;
+    border-radius: 100px;
+    margin-bottom: 28px;
+  }
+  .grade-5 { background: rgba(45,212,160,0.15); color: var(--success); border: 2px solid rgba(45,212,160,0.3); }
+  .grade-4 { background: rgba(79,142,247,0.15); color: var(--accent); border: 2px solid rgba(79,142,247,0.3); }
+  .grade-3 { background: rgba(247,195,79,0.15); color: var(--warning); border: 2px solid rgba(247,195,79,0.3); }
+  .grade-2 { background: rgba(247,79,106,0.15); color: var(--danger); border: 2px solid rgba(247,79,106,0.3); }
+
+  .breakdown-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .breakdown-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+  .breakdown-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+  .breakdown-q { font-size: 12px; color: var(--muted); font-weight: 700; min-width: 32px; }
+  .breakdown-text { flex: 1; font-size: 13px; font-weight: 600; line-height: 1.4; }
+  .breakdown-icon { font-size: 18px; }
+
+  .btn-restart {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 14px; color: #fff;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px; font-weight: 600;
+    padding: 16px; cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(79,142,247,0.3);
+    margin-bottom: 40px;
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(79,142,247,0.45); }
+
+  .feedback-msg {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .feedback-msg strong { color: var(--accent); font-family: 'Unbounded', sans-serif; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-card">
+      <span class="atom-icon">⚛️</span>
+      <div class="login-title">ФИЗИКА МОДО</div>
+      <div class="login-sub">9-сынып · Балқаш № 12 мектебі</div>
+      <div class="variant-label">Нұсқаны таңда:</div>
+      <div class="variant-grid" id="variantGrid"></div>
+      <input class="input-field" type="text" id="nameInput" placeholder="Аты-жөніңді жаз..." maxlength="50">
+      <button class="btn-primary" id="startBtn" onclick="startQuiz()" disabled>Бастау →</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="container">
+    <div class="quiz-header">
+      <div class="quiz-info">Оқушы: <span id="hdr-name"></span></div>
+      <div class="quiz-info">Нұсқа: <span id="hdr-variant"></span></div>
+      <div class="quiz-info"><span id="hdr-q"></span> / <span id="hdr-total"></span></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div id="quizContent"></div>
+    <div class="nav-btns">
+      <button class="btn-secondary" id="prevBtn" onclick="navigate(-1)">← Алдыңғы</button>
+      <button class="btn-secondary" id="nextBtn" onclick="navigate(1)">Келесі →</button>
+      <button class="btn-primary" id="finishBtn" onclick="finishQuiz()" style="display:none;flex:1">Аяқтау ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="container">
+    <div class="results-header">
+      <span class="results-emoji" id="res-emoji"></span>
+      <div class="results-name" id="res-name"></div>
+      <div class="results-variant" id="res-variant"></div>
+    </div>
+    <div class="score-ring" id="scoreRing">
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <defs>
+          <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#4f8ef7"/>
+            <stop offset="100%" style="stop-color:#7c5ef7"/>
+          </linearGradient>
+        </defs>
+        <circle class="score-ring-bg" cx="70" cy="70" r="58" stroke-width="12"/>
+        <circle class="score-ring-fill" id="ringCircle" cx="70" cy="70" r="58" stroke-width="12" stroke-dasharray="364.4" stroke-dashoffset="364.4"/>
+      </svg>
+      <div class="score-ring-text">
+        <div class="score-pct" id="res-pct">0%</div>
+        <div class="score-pct-label">нәтиже</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-val green" id="res-correct">0</div><div class="stat-label">Дұрыс</div></div>
+      <div class="stat-card"><div class="stat-val red" id="res-wrong">0</div><div class="stat-label">Қате</div></div>
+      <div class="stat-card"><div class="stat-val blue" id="res-total-q">0</div><div class="stat-label">Барлығы</div></div>
+    </div>
+    <div style="text-align:center;margin-bottom:24px">
+      <div class="grade-badge" id="gradeBadge"></div>
+    </div>
+    <div class="feedback-msg" id="feedbackMsg"></div>
+    <div class="breakdown-title">Сұрақтар бойынша талдау</div>
+    <div class="breakdown-list" id="breakdownList"></div>
+    <button class="btn-restart" onclick="restart()">↺ Қайта бастау</button>
+  </div>
+</div>
+
+<script>
+const VARIANTS = {
+  2: {
+    label: "2-нұсқа",
+    sections: [
+      {
+        context: "Суретте екі нүктелік заряд берілген. Бірінші зарядтың шамасы оң, екінші заряд шамасы теріс. Олардың арақашықтығы 3 см.",
+        questions: [
+          {
+            q: "Екі нүктелік зарядтың арасындағы әсерлесу күші неге тең?",
+            opts: ["80 Н", "8 Н", "0,8 Н", "800 Н", "8000 Н"],
+            ans: 1
+          },
+          {
+            q: "Егер бұл зарядтарды түйістірсе қандай заряд шамасын алуға болады?",
+            opts: ["-2 мкКл", "2 мкКл", "6 мкКл", "8 мкКл", "-6 мкКл"],
+            ans: 0
+          },
+          {
+            q: "Егер әсерлесу күшін екі есе азайтса, нүктелік зарядтар қандай арақашықтықта болар еді?",
+            opts: ["0,42 мм", "4,2 м", "4,2 см", "1,8 см", "18 мм"],
+            ans: 2
+          },
+          {
+            q: "Берілген зарядтар үшін электр өрісінің күш сызықтарының бағытын анықтаңыз (D нұсқасы дұрыс).",
+            opts: ["А нұсқасы", "B нұсқасы", "C нұсқасы", "D нұсқасы", "E нұсқасы"],
+            ans: 3
+          }
+        ]
+      },
+      {
+        context: "Ай диаметрі 3476 км (Жер диаметрінен 4 еседей аз), яғни радиусы 1738 км. Айдың бірдей екі фазасы аралығындағы уақыт 29,53 тәулік (синодтық ай), ал оның жұлдыздарға қатысты Жерді бір айналып шығатын уақыты 27,3 тәулік болады.",
+        questions: [
+          {
+            q: "Ай өз өсі төңірегінде 27,3 тәулікте толық бір айналып шығады. Бұл қанша сағат қанша минутты құрайды?",
+            opts: ["6,652 сағ, 39312 мин", "665,2 сағ, 39312 мин", "765,2 сағ, 49312 мин", "675,3 сағ, 393,12 мин", "6,652 сағ, 3,9312 мин"],
+            ans: 1
+          },
+          {
+            q: "Айдың диаметрі 13 м тең делік. Айдың ауданы қанша?",
+            opts: ["S ≈ 143 м²", "S ≈ 33 м²", "S ≈ 3,3 м²", "S ≈ 133 м²", "S ≈ 4,3 м²"],
+            ans: 3
+          },
+          {
+            q: "Дөңгелек ауданының формуласы:",
+            opts: ["S=πr²=πD²/2", "S=πr²=πD²/4", "S=πr=πD²/4", "S=πr²=D²/2", "S=πr²=π/4"],
+            ans: 1
+          },
+          {
+            q: "Айдың екі толық тууының арасындағы уақыты 29,5 тәулікке тең. Бұл қанша сағатты құрайды?",
+            opts: ["608 сағ", "708 сағ", "70,8 сағ", "60,8 сағ", "718 сағ"],
+            ans: 1
+          }
+        ]
+      }
+    ]
+  },
+  4: {
+    label: "4-нұсқа",
+    sections: [
+      {
+        context: "Конденсатор — бұл электр зарядтарын жинай алатын құрылғы. Қарапайым конденсатор — кез-келген диэлектрлік екі металл плита (электродтар).",
+        questions: [
+          {
+            q: "Сыйымдылығы С=2 мкФ конденсатор батареясын 100 В-қа дейін зарядтау үшін қанша заряд керек?",
+            opts: ["200 мкКл", "200 Кл", "0,02 Кл", "400 мкКл", "40 мкКл"],
+            ans: 0
+          },
+          {
+            q: "0,01 Кл заряд бергенде 10 Дж жұмыс жасалса, конденсатордың сыйымдылығын анықтаңдар.",
+            opts: ["5 мкФ", "500 мкФ", "0,5 мкФ", "100 мкФ", "10 мкФ"],
+            ans: 0
+          },
+          {
+            q: "Сыйымдылықтары 6 және 9 пФ болатын шардың потенциалы сәйкесінше 200 В және 800 В. Екі шардың қосынды заряды қандай?",
+            opts: ["1,2 нКл", "7,2 нКл", "8,4 нКл", "6 нКл", "6,4 нКл"],
+            ans: 2
+          },
+          {
+            q: "Нүктелік зарядтың шамасын 4 есе арттырса, конденсатордың сыйымдылығы қалай өзгереді?",
+            opts: ["4 есе кемиді", "2 есе кемиді", "2 есе артады", "4 есе артады", "өзгермейді"],
+            ans: 4
+          }
+        ]
+      },
+      {
+        context: "Суретте бұранда қадамы мен кіші денелердің өлшемін анықтау үшін қатарлау әдісі қолданылған. Өте көп ұсақ денені сызғышқа бір қатарға тізіп қояды да, осы қатардағы бөлшектерді санайды.",
+        questions: [
+          {
+            q: "Суретке қарап, бұранда қадамын анықта. Сызғыштың бөлік құны 1 мм-ге тең деп есепте.",
+            opts: ["0,1 мм", "0,8 мм", "0,9 мм", "1,2 мм", "1,3 мм"],
+            ans: 1
+          },
+          {
+            q: "Суреттегі эксперимент мәліметтері бойынша бір моншақтың өлшемін көрсет.",
+            opts: ["1,65 мм", "1,63 мм", "0,95 мм", "0,96 мм", "1,64 мм"],
+            ans: 4
+          },
+          {
+            q: "Тиындардың жиынтығы 30 дана тиыннан тұрады, жиынтықтың ұзындығы 32 см. Бір тиынның қалыңдығы қанша?",
+            opts: ["10,6 мм; 1,06 см; 0,0106 м", "10,6 мм; 1,06 см; 0,106 м", "1,06 мм; 0,106 см; 0,000106 м", "10,6 мм; 1,06 см; 0,00106 м", "10 мм; 1,06 см; 0,00106 м"],
+            ans: 3
+          },
+          {
+            q: "Марс массасын (640 000 000 000 000 000 000 000 кг) стандартты түрде жаз.",
+            opts: ["60,4·10²³ кг", "6,40·10²³ кг", "64,0·10²⁴ кг", "6,04·10²³ кг", "6,4·10²³ кг"],
+            ans: 4
+          }
+        ]
+      }
+    ]
+  },
+  6: {
+    label: "6-нұсқа",
+    sections: [
+      {
+        context: "Ерболдың автокөлігі 108 км/сағ жылдамдықпен жүреді. Жол тайғақ болып кетеді. Жолдың тайғақ бөлігінде автокөліктің үдеуі графикте берілген.",
+        questions: [
+          {
+            q: "(0-2) с аралығында автокөлік үдеуінің модулі және бағыты",
+            opts: ["1,5 м/с², қозғалыс бағытына қарама-қарсы", "1 м/с², қозғалыс бағытына қарама-қарсы", "1,5 м/с², қозғалыс бағытымен бағыттас", "2 м/с², қозғалыс бағытымен бағыттас", "2 м/с², қозғалыс бағытына қарама-қарсы"],
+            ans: 0
+          },
+          {
+            q: "Автокөліктің (4-6) с аралығындағы қозғалысы",
+            opts: ["Шеңбер бойымен үдемелі", "Шеңбер бойымен кемімелі", "Теңкемімелі", "Теңүдемелі", "Бірқалыпты"],
+            ans: 4
+          },
+          {
+            q: "Автокөліктің 4 с уақыт мезетіндегі жылдамдығы",
+            opts: ["29 м/с", "26 м/с", "24 м/с", "27 м/с", "25 м/с"],
+            ans: 3
+          },
+          {
+            q: "Автокөліктің алғашқы 6 с жүрген жолы",
+            opts: ["115 м", "171 м", "117 м", "123 м", "125 м"],
+            ans: 2
+          }
+        ]
+      },
+      {
+        context: "Дархан жарықты түрлі заттардан өткізіп, жарықтың сыну құбылысын зерттеді. Жарықтың ауадағы таралу жылдамдығы 3×10⁸ м/с.",
+        questions: [
+          {
+            q: "Жарықтың судағы жылдамдығы?",
+            opts: ["1,13×10⁸ м/с", "2,26×10⁸ м/с", "0,44×10⁸ м/с", "1,25×10⁸ м/с", "0,88×10⁸ м/с"],
+            ans: 1
+          },
+          {
+            q: "Жарық судан алмазға өтті. Заттардың салыстырмалы сыну көрсеткіштері:",
+            opts: ["1,33", "2,42", "1,09", "1,82", "0,55"],
+            ans: 3
+          },
+          {
+            q: "Жарық кварцтан алмазға өткенде жарық жылдамдығы:",
+            opts: ["1,57 есе артады", "0,7 есе кемиді", "0,7 есе артады", "1,2 есе кемиді", "1,57 есе кемиді"],
+            ans: 4
+          },
+          {
+            q: "Жарық сәулесі судан майға өткен. Сәуленің осы ортадағы таралу жылдамдықтарының қатынасы (v₁/v₂):",
+            opts: ["0,88", "1,33", "1,14", "0,19", "1,52"],
+            ans: 2
+          }
+        ]
+      }
+    ]
+  },
+  7: {
+    label: "7-нұсқа",
+    sections: [
+      {
+        context: "Ньютон заңдары: барлық материалдық объектілерге ортақ қасиет — тыныштық күйін немесе бірқалыпты түзу сызықты қозғалысын сақтау туралы айтылады.",
+        questions: [
+          {
+            q: "Жүгі бар арбаны аққу аспанға, шортан суға, шаян алға тартады. Арба орнынан қозғала ма? Тең әсерлі күш неге тең?",
+            opts: ["Қозғалмайды, FR=0", "Қозғалады, FR=F1+F2+F3", "Қозғалмайды, FR=F1+F2-F3", "Қозғалады, FR=0", "FR=F1+F2"],
+            ans: 0
+          },
+          {
+            q: "Ньютонның үшінші заңын тұжырымдаңыз",
+            opts: ["Әрекет етуші күшке әрқашан тең әсерлі күш әрекет етеді", "Әрекет етуші күшке ешқандай күш әсер етпейді", "Әрекет етуші күшке әртүрлі күш әрекет етеді", "Әрекет етуші күшке ауырлық күші әсер етеді", "Әрекет етуші күшке тарту күші әсер етеді"],
+            ans: 0
+          },
+          {
+            q: "Әсер етуші күш екі есе артса дененің алатын үдеуі қалай өзгереді?",
+            opts: ["Екі есе кемиді", "Төрт есе артады", "Екі есе артады", "Төрт есе кемиді", "Өзгермейді"],
+            ans: 2
+          },
+          {
+            q: "Ньютонның екінші заңының өрнегі:",
+            opts: ["F=mgh", "F=ma", "F=mv", "F=mv²/2", "F=-kx"],
+            ans: 1
+          }
+        ]
+      },
+      {
+        context: "Суретте электр тізбегі жинақталған. Реостаттар тізбектеліп қосылған.",
+        questions: [
+          {
+            q: "Тізбектегі электр тогының қуатын есептеңіз.",
+            opts: ["144 Вт", "14,4 Вт", "1,44 Вт", "14 кВт", "1,44 кВт"],
+            ans: 1
+          },
+          {
+            q: "Екінші реостаттың сымының ұзындығы 4 м, меншікті кедергісі 4,2×10⁻⁷ Ом·м болатын никелин сымының ауданы қандай?",
+            opts: ["16,8 см²", "0,168 мм²", "1,68 см²", "1,68 мм²", "16,8 мм²"],
+            ans: 3
+          },
+          {
+            q: "Егер осы тізбек 1 сағат бойы қосылса, қандай жылу мөлшерін алуға болады?",
+            opts: ["520 Дж", "52 кДж", "1440 Дж", "1,44 Дж", "5,2 кДж"],
+            ans: 1
+          },
+          {
+            q: "Тізбектегі жалпы кедергі шамасы қандай?",
+            opts: ["4 Ом", "60 Ом", "3,75 Ом", "16 Ом", "8 Ом"],
+            ans: 3
+          }
+        ]
+      }
+    ]
+  }
+};
+
+const LABELS = ['А', 'В', 'С', 'D', 'Е'];
+let state = { variant: null, name: '', qIndex: 0, answers: [], allQuestions: [] };
+
+// Build variant buttons
+const variantGrid = document.getElementById('variantGrid');
+[2, 4, 6, 7].forEach(v => {
+  const btn = document.createElement('button');
+  btn.className = 'variant-btn';
+  btn.textContent = v + '-нұсқа';
+  btn.onclick = () => selectVariant(v);
+  variantGrid.appendChild(btn);
+});
+
+document.getElementById('nameInput').addEventListener('input', checkReady);
+
+function selectVariant(v) {
+  state.variant = v;
+  document.querySelectorAll('.variant-btn').forEach((b, i) => {
+    b.classList.toggle('selected', [2,4,6,7][i] === v);
+  });
+  checkReady();
+}
+
+function checkReady() {
+  const name = document.getElementById('nameInput').value.trim();
+  document.getElementById('startBtn').disabled = !name || !state.variant;
+}
+
+function flattenQuestions(variant) {
+  const data = VARIANTS[variant];
+  let flat = [];
+  data.sections.forEach(sec => {
+    sec.questions.forEach((q, qi) => {
+      flat.push({ ...q, context: qi === 0 ? sec.context : null, section: sec.context });
+    });
+  });
+  return flat;
+}
+
+function startQuiz() {
+  state.name = document.getElementById('nameInput').value.trim();
+  state.allQuestions = flattenQuestions(state.variant);
+  state.answers = new Array(state.allQuestions.length).fill(null);
+  state.qIndex = 0;
+  document.getElementById('hdr-name').textContent = state.name;
+  document.getElementById('hdr-variant').textContent = VARIANTS[state.variant].label;
+  document.getElementById('hdr-total').textContent = state.allQuestions.length;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.allQuestions[state.qIndex];
+  const total = state.allQuestions.length;
+  const answered = state.answers[state.qIndex];
+
+  document.getElementById('hdr-q').textContent = state.qIndex + 1;
+  document.getElementById('progressFill').style.width = ((state.qIndex + 1) / total * 100) + '%';
+
+  let html = '';
+  html += `<div class="question-num">Сұрақ ${state.qIndex + 1} / ${total}</div>`;
+  if (q.context) {
+    html += `<div class="context-box">📄 ${q.context}</div>`;
+  }
+  html += `<div class="question-text">${q.q}</div>`;
+  html += `<div class="options-list">`;
+  q.opts.forEach((opt, i) => {
+    let cls = '';
+    if (answered !== null) {
+      if (i === q.ans) cls = 'correct';
+      else if (i === answered && answered !== q.ans) cls = 'wrong';
+    }
+    html += `<button class="option-btn ${cls}" onclick="selectAnswer(${i})" ${answered !== null ? 'disabled' : ''}>
+      <div class="option-label">${LABELS[i]}</div>
+      <div>${opt}</div>
+    </button>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('quizContent').innerHTML = html;
+
+  // Nav buttons
+  document.getElementById('prevBtn').style.display = state.qIndex > 0 ? 'block' : 'none';
+  const isLast = state.qIndex === total - 1;
+  document.getElementById('nextBtn').style.display = isLast ? 'none' : 'block';
+  document.getElementById('finishBtn').style.display = isLast ? 'flex' : 'none';
+}
+
+function selectAnswer(i) {
+  if (state.answers[state.qIndex] !== null) return;
+  state.answers[state.qIndex] = i;
+  renderQuestion();
+}
+
+function navigate(dir) {
+  state.qIndex = Math.max(0, Math.min(state.allQuestions.length - 1, state.qIndex + dir));
+  renderQuestion();
+}
+
+function finishQuiz() {
+  const total = state.allQuestions.length;
+  let correct = 0;
+  state.allQuestions.forEach((q, i) => {
+    if (state.answers[i] === q.ans) correct++;
+  });
+  const wrong = total - correct;
+  const pct = Math.round(correct / total * 100);
+
+  // Grade
+  let grade, gradeCls, emoji, feedback;
+  if (pct >= 85) { grade = '«5» Өте жақсы'; gradeCls = 'grade-5'; emoji = '🏆'; feedback = '🎉 Керемет нәтиже! Сен физиканы өте жақсы меңгерген! МОДО-ға толық дайынсың!'; }
+  else if (pct >= 70) { grade = '«4» Жақсы'; gradeCls = 'grade-4'; emoji = '⭐'; feedback = '👍 Жақсы нәтиже! Кішкене қайталасаң, «5» ала аласың. Сенемін!'; }
+  else if (pct >= 50) { grade = '«3» Қанағаттанарлық'; gradeCls = 'grade-3'; emoji = '📚'; feedback = '💪 Талпыныс жақсы! Тақырыптарды тағы бір рет қайтала, нәтиже артады!'; }
+  else { grade = '«2» Қанағаттанарлықсыз'; gradeCls = 'grade-2'; emoji = '📖'; feedback = '🔄 Уайымдама! Формулалар мен тұжырымдарды мұқият қайтала. Сен мұны меңгере аласың!'; }
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-name').textContent = state.name;
+  document.getElementById('res-variant').textContent = VARIANTS[state.variant].label + ' · ' + new Date().toLocaleDateString('kk-KZ');
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-wrong').textContent = wrong;
+  document.getElementById('res-total-q').textContent = total;
+  document.getElementById('gradeBadge').textContent = grade;
+  document.getElementById('gradeBadge').className = 'grade-badge ' + gradeCls;
+  document.getElementById('feedbackMsg').innerHTML = feedback;
+
+  // Breakdown
+  let bdHtml = '';
+  state.allQuestions.forEach((q, i) => {
+    const isCorrect = state.answers[i] === q.ans;
+    const userAns = state.answers[i] !== null ? LABELS[state.answers[i]] : '—';
+    const rightAns = LABELS[q.ans];
+    bdHtml += `<div class="breakdown-item">
+      <div class="breakdown-q">№${i+1}</div>
+      <div class="breakdown-text">
+        ${q.q.length > 60 ? q.q.substring(0, 60) + '...' : q.q}<br>
+        <span style="font-size:11px;color:${isCorrect ? 'var(--success)' : 'var(--danger)'}">
+          ${isCorrect ? 'Дұрыс жауап: ' + rightAns : 'Сенің жауабың: ' + userAns + ' · Дұрысы: ' + rightAns}
+        </span>
+      </div>
+      <div class="breakdown-icon">${isCorrect ? '✅' : '❌'}</div>
+    </div>`;
+  });
+  document.getElementById('breakdownList').innerHTML = bdHtml;
+
+  showScreen('results');
+
+  // Animate ring
+  setTimeout(() => {
+    const circumference = 364.4;
+    const offset = circumference - (pct / 100) * circumference;
+    document.getElementById('ringCircle').style.strokeDashoffset = offset;
+    // count up pct
+    let n = 0;
+    const timer = setInterval(() => {
+      n = Math.min(n + 2, pct);
+      document.getElementById('res-pct').textContent = n + '%';
+      if (n >= pct) clearInterval(timer);
+    }, 20);
+  }, 300);
+}
+
+function restart() {
+  state = { variant: null, name: '', qIndex: 0, answers: [], allQuestions: [] };
+  document.getElementById('nameInput').value = '';
+  document.querySelectorAll('.variant-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('startBtn').disabled = true;
+  showScreen('login');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
